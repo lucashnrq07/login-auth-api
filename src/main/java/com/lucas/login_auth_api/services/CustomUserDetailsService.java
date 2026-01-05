@@ -1,4 +1,4 @@
-package com.lucas.login_auth_api.infra.security;
+package com.lucas.login_auth_api.services;
 
 import com.lucas.login_auth_api.domain.entities.User;
 import com.lucas.login_auth_api.repositories.UserRepository;

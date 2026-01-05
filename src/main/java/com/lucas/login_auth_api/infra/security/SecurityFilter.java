@@ -2,6 +2,7 @@ package com.lucas.login_auth_api.infra.security;
 
 import com.lucas.login_auth_api.domain.entities.User;
 import com.lucas.login_auth_api.repositories.UserRepository;
+import com.lucas.login_auth_api.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

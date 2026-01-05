@@ -1,4 +1,4 @@
-package com.lucas.login_auth_api.infra.security;
+package com.lucas.login_auth_api.services;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

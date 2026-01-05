@@ -1,5 +1,6 @@
 package com.lucas.login_auth_api.infra.security;
 
+import com.lucas.login_auth_api.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
