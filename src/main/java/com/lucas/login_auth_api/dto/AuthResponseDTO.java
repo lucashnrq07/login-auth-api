@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
         name = "AuthResponse",
         description = "Resposta retornada após autenticação ou cadastro bem-sucedido"
 )
-public record ResponseDTO(
+public record AuthResponseDTO(
 
         @Schema(
                 description = "Nome do usuário autenticado",

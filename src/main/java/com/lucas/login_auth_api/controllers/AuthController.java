@@ -3,7 +3,7 @@ package com.lucas.login_auth_api.controllers;
 import com.lucas.login_auth_api.domain.entities.User;
 import com.lucas.login_auth_api.dto.LoginRequestDTO;
 import com.lucas.login_auth_api.dto.RegisterRequestDTO;
-import com.lucas.login_auth_api.dto.ResponseDTO;
+import com.lucas.login_auth_api.dto.AuthResponseDTO;
 import com.lucas.login_auth_api.repositories.UserRepository;
 import com.lucas.login_auth_api.services.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +38,7 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Usuário autenticado com sucesso",
-                    content = @Content(schema = @Schema(implementation = ResponseDTO.class))
+                    content = @Content(schema = @Schema(implementation = AuthResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -50,7 +50,7 @@ public class AuthController {
             )
     })
     @PostMapping("/login")
-    public ResponseEntity<ResponseDTO> login(
+    public ResponseEntity<AuthResponseDTO> login(
             @RequestBody @Valid LoginRequestDTO body
     ) {
         User user = repository.findByEmail(body.email())
@@ -58,7 +58,7 @@ public class AuthController {
 
         if (passwordEncoder.matches(body.password(), user.getPassword())) {
             String token = tokenService.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getName(), token));
+            return ResponseEntity.ok(new AuthResponseDTO(user.getName(), token));
         }
 
         return ResponseEntity.badRequest().build();
@@ -72,7 +72,7 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Usuário cadastrado com sucesso",
-                    content = @Content(schema = @Schema(implementation = ResponseDTO.class))
+                    content = @Content(schema = @Schema(implementation = AuthResponseDTO.class))
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -80,7 +80,7 @@ public class AuthController {
             )
     })
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(
+    public ResponseEntity<AuthResponseDTO> register(
             @RequestBody @Valid RegisterRequestDTO body
     ) {
         Optional<User> user = repository.findByEmail(body.email());
@@ -94,7 +94,7 @@ public class AuthController {
             repository.save(newUser);
 
             String token = tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getName(), token));
+            return ResponseEntity.ok(new AuthResponseDTO(newUser.getName(), token));
         }
 
         return ResponseEntity.badRequest().build();
