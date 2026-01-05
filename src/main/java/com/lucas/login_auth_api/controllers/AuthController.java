@@ -1,11 +1,9 @@
 package com.lucas.login_auth_api.controllers;
 
-import com.lucas.login_auth_api.domain.entities.User;
+import com.lucas.login_auth_api.dto.AuthResponseDTO;
 import com.lucas.login_auth_api.dto.LoginRequestDTO;
 import com.lucas.login_auth_api.dto.RegisterRequestDTO;
-import com.lucas.login_auth_api.dto.AuthResponseDTO;
-import com.lucas.login_auth_api.repositories.UserRepository;
-import com.lucas.login_auth_api.services.TokenService;
+import com.lucas.login_auth_api.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,89 +12,59 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Autenticação", description = "Endpoints de login e cadastro de usuários")
+@Tag(
+        name = "Autenticação",
+        description = "Endpoints responsáveis por login e cadastro de usuários"
+)
 public class AuthController {
 
-    private final UserRepository repository;
-    private final PasswordEncoder passwordEncoder;
-    private final TokenService tokenService;
+    private final AuthService authService;
 
     @Operation(
             summary = "Login do usuário",
             description = "Autentica o usuário com email e senha e retorna um token JWT"
     )
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
                     description = "Usuário autenticado com sucesso",
                     content = @Content(schema = @Schema(implementation = AuthResponseDTO.class))
             ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Credenciais inválidas"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuário não encontrado"
-            )
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(
             @RequestBody @Valid LoginRequestDTO body
     ) {
-        User user = repository.findByEmail(body.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (passwordEncoder.matches(body.password(), user.getPassword())) {
-            String token = tokenService.generateToken(user);
-            return ResponseEntity.ok(new AuthResponseDTO(user.getName(), token));
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(authService.login(body));
     }
 
     @Operation(
             summary = "Cadastro de usuário",
             description = "Cria um novo usuário e retorna um token JWT automaticamente"
     )
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
-                    responseCode = "200",
+                    responseCode = "201",
                     description = "Usuário cadastrado com sucesso",
                     content = @Content(schema = @Schema(implementation = AuthResponseDTO.class))
             ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Email já cadastrado ou dados inválidos"
-            )
+            @ApiResponse(responseCode = "409", description = "Email já cadastrado")
     })
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(
             @RequestBody @Valid RegisterRequestDTO body
     ) {
-        Optional<User> user = repository.findByEmail(body.email());
-
-        if (user.isEmpty()) {
-            User newUser = new User();
-            newUser.setName(body.name());
-            newUser.setEmail(body.email());
-            newUser.setPassword(passwordEncoder.encode(body.password()));
-
-            repository.save(newUser);
-
-            String token = tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new AuthResponseDTO(newUser.getName(), token));
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(authService.register(body));
     }
 }
