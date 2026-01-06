@@ -1,5 +1,6 @@
 package com.lucas.login_auth_api.services;
 
+import com.lucas.login_auth_api.domain.entities.Role;
 import com.lucas.login_auth_api.domain.entities.User;
 import com.lucas.login_auth_api.dto.AuthResponseDTO;
 import com.lucas.login_auth_api.dto.LoginRequestDTO;
@@ -42,6 +43,7 @@ public class AuthService {
         newUser.setName(body.name());
         newUser.setEmail(body.email());
         newUser.setPassword(passwordEncoder.encode(body.password()));
+        newUser.setRole(Role.ROLE_USER);
 
         repository.save(newUser);
 
