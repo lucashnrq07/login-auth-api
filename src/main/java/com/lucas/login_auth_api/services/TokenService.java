@@ -5,12 +5,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.lucas.login_auth_api.domain.entities.User;
+import com.lucas.login_auth_api.exceptions.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 @Service
 public class TokenService {
@@ -29,9 +28,7 @@ public class TokenService {
                     .sign(algorithm);
             return token;
         } catch (JWTCreationException e) {
-
-            // TRATAR EXCEÇÃO:
-            throw new RuntimeException("Error while authenticating");
+            throw new IllegalStateException("Error while authenticating");
         }
     }
 
@@ -44,7 +41,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException e) {
-            throw new RuntimeException("Invalid or expired token");
+            throw new InvalidTokenException("Invalid or expired token");
         }
     }
 

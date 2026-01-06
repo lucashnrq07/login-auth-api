@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,28 +30,41 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
         String token = recoverToken(request);
 
         if (token != null) {
-            String login = tokenService.validateToken(token);
+            try {
+                String login = tokenService.validateToken(token);
 
-            User user = userRepository.findByEmail(login)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                User user = userRepository.findByEmail(login)
+                        .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found"));
 
-            var authorities = Collections.singletonList(
-                    new SimpleGrantedAuthority(ROLE_USER)
-            );
+                var authorities = Collections.singletonList(
+                        new SimpleGrantedAuthority(ROLE_USER)
+                );
 
-            var authentication =
-                    new UsernamePasswordAuthenticationToken(user.getEmail(), null, authorities);
+                var authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                user.getEmail(),
+                                null,
+                                authorities
+                        );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);
     }
+
 
     private String recoverToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
