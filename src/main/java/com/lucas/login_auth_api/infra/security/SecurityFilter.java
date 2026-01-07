@@ -40,7 +40,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 String login = tokenService.validateToken(token);
 
                 User user = userRepository.findByEmail(login)
-                        .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found"));
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
                 var authorities = Collections.singletonList(
                         new SimpleGrantedAuthority(ROLE_USER)
@@ -64,7 +64,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 
     private String recoverToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
