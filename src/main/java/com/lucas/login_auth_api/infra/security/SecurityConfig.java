@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .userDetailsService(userDetailsService)
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(entryPoint) // <---- AQUI
+                        .authenticationEntryPoint(entryPoint)
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(

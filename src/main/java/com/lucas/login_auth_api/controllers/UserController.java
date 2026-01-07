@@ -26,6 +26,6 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     public ResponseEntity<String> getUser() {
-        return ResponseEntity.ok("sucesso!");
+        return ResponseEntity.ok("Logado com sucesso!");
     }
 }

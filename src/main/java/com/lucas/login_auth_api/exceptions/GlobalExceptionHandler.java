@@ -1,10 +1,6 @@
 package com.lucas.login_auth_api.exceptions;
 
 import com.lucas.login_auth_api.dto.ApiError;
-import com.lucas.login_auth_api.exceptions.EmailAlreadyRegisteredException;
-import com.lucas.login_auth_api.exceptions.InvalidCredentialsException;
-import com.lucas.login_auth_api.exceptions.InvalidTokenException;
-import com.lucas.login_auth_api.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestControllerAdvice
@@ -68,7 +65,7 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, String message) {
         ApiError error = new ApiError(
-                Instant.now(),
+                LocalDateTime.now(),
                 status.value(),
                 message
         );
@@ -85,7 +82,7 @@ public class GlobalExceptionHandler {
                 .toList();
 
         ApiError apiError = new ApiError(
-                Instant.now(),
+                LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "Validation failed"
         );
