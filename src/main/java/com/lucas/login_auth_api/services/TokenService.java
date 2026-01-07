@@ -50,12 +50,4 @@ public class TokenService {
     private Instant generateExpirationDate() {
         return Instant.now().plusSeconds(2 * 60 * 60);
     }
-
-    public DecodedJWT decodeToken(String token) {
-        Algorithm algorithm = Algorithm.HMAC256(secret);
-        return JWT.require(algorithm)
-                .withIssuer("login-auth-api")
-                .build()
-                .verify(token);
-    }
 }
